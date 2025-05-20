@@ -1,5 +1,6 @@
 package com.magmaguy.freeminecraftmodels;
 
+import com.github.retrooper.packetevents.PacketEvents;
 import com.magmaguy.easyminecraftgoals.NMSManager;
 import com.magmaguy.freeminecraftmodels.commands.*;
 import com.magmaguy.freeminecraftmodels.config.DefaultConfig;
@@ -12,6 +13,7 @@ import com.magmaguy.freeminecraftmodels.dataconverter.FileModelConverter;
 import com.magmaguy.freeminecraftmodels.listeners.EntityTeleportEvent;
 import com.magmaguy.magmacore.MagmaCore;
 import com.magmaguy.magmacore.command.CommandManager;
+import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
 import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.LivingEntity;
@@ -26,6 +28,7 @@ public final class FreeMinecraftModels extends JavaPlugin implements Listener {
 
     @Override
     public void onEnable() {
+        PacketEvents.getAPI().init();
         Bukkit.getLogger().info(" _______ __                               ___ __   _______           __         __        ");
         Bukkit.getLogger().info("|   |   |__|.-----.-----.----.----.---.-.'  _|  |_|   |   |.-----.--|  |.-----.|  |.-----.");
         Bukkit.getLogger().info("|       |  ||     |  -__|  __|   _|  _  |   _|   _|       ||  _  |  _  ||  -__||  ||__ --|");
@@ -62,6 +65,9 @@ public final class FreeMinecraftModels extends JavaPlugin implements Listener {
 
     @Override
     public void onLoad() {
+        PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
+        //On Bukkit, calling this here is essential, hence the name "load"
+        PacketEvents.getAPI().load();
         MagmaCore.createInstance(this);
     }
 

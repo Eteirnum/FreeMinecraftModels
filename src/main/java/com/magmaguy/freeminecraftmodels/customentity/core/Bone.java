@@ -1,10 +1,13 @@
 package com.magmaguy.freeminecraftmodels.customentity.core;
 
+import com.magmaguy.freeminecraftmodels.MetadataHandler;
 import com.magmaguy.freeminecraftmodels.config.DefaultConfig;
 import com.magmaguy.freeminecraftmodels.dataconverter.BoneBlueprint;
+import com.magmaguy.freeminecraftmodels.packets.PacketArmorStand;
 import com.magmaguy.freeminecraftmodels.thirdparty.Floodgate;
 import com.magmaguy.magmacore.util.VersionChecker;
 import lombok.Getter;
+import org.bukkit.Bukkit;
 import org.bukkit.Color;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
@@ -32,6 +35,8 @@ public class Bone {
     private Vector3f animationRotation = new Vector3f();
     @Getter
     private float animationScale = -1;
+    @Getter
+    PacketArmorStand nametag = null;
 
     public Bone(BoneBlueprint boneBlueprint, Bone parent, Skeleton skeleton) {
         this.boneBlueprint = boneBlueprint;
@@ -40,6 +45,10 @@ public class Bone {
         this.boneTransforms = new BoneTransforms(this, parent);
         for (BoneBlueprint child : boneBlueprint.getBoneBlueprintChildren())
             boneChildren.add(new Bone(child, this, skeleton));
+
+        if(this.boneBlueprint.isNameTag()) {
+            addNametag();
+        }
     }
 
     public void updateAnimationTranslation(float x, float y, float z) {
@@ -59,6 +68,11 @@ public class Bone {
         boneTransforms.transform();
         boneChildren.forEach(Bone::transform);
         skeleton.getSkeletonWatchers().sendPackets(this);
+        if(this.boneBlueprint.isNameTag()) {
+            if(nametag != null) {
+                nametag.updateLocation(this.getSkeleton().getCurrentLocation());
+            }
+        }
     }
 
     public void generateDisplay() {
@@ -82,6 +96,11 @@ public class Bone {
         if (boneTransforms.getPacketArmorStandEntity() != null) boneTransforms.getPacketArmorStandEntity().remove();
         if (boneTransforms.getPacketDisplayEntity() != null) boneTransforms.getPacketDisplayEntity().remove();
         boneChildren.forEach(Bone::remove);
+        if(this.boneBlueprint.isNameTag()) {
+            if(nametag != null) {
+                nametag.destroy();
+            }
+        }
     }
 
     protected void getAllChildren(HashMap<String, Bone> children) {
@@ -99,10 +118,18 @@ public class Bone {
         if (boneTransforms.getPacketArmorStandEntity() != null &&
                 (!DefaultConfig.useDisplayEntitiesWhenPossible ||
                         Floodgate.isBedrock(player) ||
-                        VersionChecker.serverVersionOlderThan(19, 4)))
+                        VersionChecker.serverVersionOlderThan(19, 4))) {
             boneTransforms.getPacketArmorStandEntity().displayTo(player.getUniqueId());
-        else if (boneTransforms.getPacketDisplayEntity() != null)
+        }
+        else if (boneTransforms.getPacketDisplayEntity() != null) {
             boneTransforms.getPacketDisplayEntity().displayTo(player.getUniqueId());
+        }
+
+        if(this.boneBlueprint.isNameTag()) {
+            Bukkit.getScheduler().runTaskLater(MetadataHandler.PLUGIN, () -> {
+                nametag.displayTo(player);;
+            }, 5L);
+        }
     }
 
     public void hideFrom(UUID playerUUID) {
@@ -110,6 +137,9 @@ public class Bone {
             boneTransforms.getPacketArmorStandEntity().hideFrom(playerUUID);
         if (boneTransforms.getPacketDisplayEntity() != null)
             boneTransforms.getPacketDisplayEntity().hideFrom(playerUUID);
+        if(this.boneBlueprint.isNameTag()) {
+            nametag.hideFrom(Bukkit.getPlayer(playerUUID));
+        }
     }
 
     public void setHorseLeatherArmorColor(Color color) {
@@ -130,6 +160,14 @@ public class Bone {
         }
         if (boneTransforms.getPacketDisplayEntity() != null) {
             boneTransforms.getPacketDisplayEntity().teleport(boneTransforms.getDisplayEntityTargetLocation());
+        }
+    }
+
+    private void addNametag() {
+        if(this.boneBlueprint.isNameTag()) {
+            Bukkit.getScheduler().runTaskLater(MetadataHandler.PLUGIN, () -> {
+                nametag = new PacketArmorStand("Test Name", this.getSkeleton().getCurrentLocation());
+            }, 5L);
         }
     }
 }
