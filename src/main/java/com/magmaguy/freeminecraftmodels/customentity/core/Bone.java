@@ -7,8 +7,10 @@ import com.magmaguy.freeminecraftmodels.packets.PacketArmorStand;
 import com.magmaguy.freeminecraftmodels.thirdparty.Floodgate;
 import com.magmaguy.magmacore.util.VersionChecker;
 import lombok.Getter;
+import lombok.Setter;
 import org.bukkit.Bukkit;
 import org.bukkit.Color;
+import org.bukkit.Location;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.joml.Vector3f;
@@ -36,7 +38,9 @@ public class Bone {
     @Getter
     private float animationScale = -1;
     @Getter
-    PacketArmorStand nametag = null;
+    public PacketArmorStand nametag = null;
+    @Setter
+    public String displayName = "";
 
     public Bone(BoneBlueprint boneBlueprint, Bone parent, Skeleton skeleton) {
         this.boneBlueprint = boneBlueprint;
@@ -70,7 +74,10 @@ public class Bone {
         skeleton.getSkeletonWatchers().sendPackets(this);
         if(this.boneBlueprint.isNameTag()) {
             if(nametag != null) {
-                nametag.updateLocation(this.getSkeleton().getCurrentLocation());
+                Location location = this.getSkeleton().getCurrentLocation();
+                location.setY((location.getY() - boneBlueprint.getBlueprintModelPivot().y) - 1.3);
+                nametag.updateLocation(location);
+                nametag.setText(displayName);
             }
         }
     }
@@ -127,7 +134,7 @@ public class Bone {
 
         if(this.boneBlueprint.isNameTag()) {
             Bukkit.getScheduler().runTaskLater(MetadataHandler.PLUGIN, () -> {
-                nametag.displayTo(player);;
+                nametag.displayTo(player);
             }, 5L);
         }
     }
@@ -165,9 +172,7 @@ public class Bone {
 
     private void addNametag() {
         if(this.boneBlueprint.isNameTag()) {
-            Bukkit.getScheduler().runTaskLater(MetadataHandler.PLUGIN, () -> {
-                nametag = new PacketArmorStand("Test Name", this.getSkeleton().getCurrentLocation());
-            }, 5L);
+            nametag = new PacketArmorStand(displayName, this.getSkeleton().getCurrentLocation());
         }
     }
 }
