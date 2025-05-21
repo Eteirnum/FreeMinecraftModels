@@ -21,29 +21,20 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
+@Getter
+@Setter
 public class Bone {
-    @Getter
     private final BoneBlueprint boneBlueprint;
-    @Getter
     private final List<Bone> boneChildren = new ArrayList<>();
-    @Getter
     private final Bone parent;
-    @Getter
     private final Skeleton skeleton;
-    @Getter
     private final BoneTransforms boneTransforms;
-    @Getter
     private Vector3f animationTranslation = new Vector3f();
-    @Getter
     private Vector3f animationRotation = new Vector3f();
-    @Getter
     private float animationScale = -1;
-    @Getter
     public PacketArmorStand nametag = null;
-    @Getter
     public MountArmorStand mountArmorStand = null;
-    @Setter
-    public String displayName = " ";
+    public String displayName = "namePlaceholder";
 
     public Bone(BoneBlueprint boneBlueprint, Bone parent, Skeleton skeleton) {
         this.boneBlueprint = boneBlueprint;
