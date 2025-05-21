@@ -41,7 +41,8 @@ public class BoneBlueprint {
     @Getter
     @Setter
     private String modelID = null;
-
+    @Getter
+    private boolean mount;
     @Getter
     private boolean nameTag = false;
     @Getter
@@ -93,6 +94,7 @@ public class BoneBlueprint {
         this.parent = parent;
         if (originalBoneName.startsWith("tag_")) nameTag = true;
         //Some bones should not be displayed because they just hold metadata
+        if (originalBoneName.equalsIgnoreCase("mount")) mount = true;
         if (originalBoneName.startsWith("b_") || originalBoneName.equalsIgnoreCase("hitbox"))
             isDisplayModel = false;
         if (originalBoneName.startsWith("h_")) isHead = true;
