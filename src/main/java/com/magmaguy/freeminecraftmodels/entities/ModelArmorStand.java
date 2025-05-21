@@ -38,8 +38,6 @@ public class ModelArmorStand {
         if (bone.getBoneBlueprint().getModelID() != null)
             if (VersionChecker.serverVersionOlderThan(21, 4)) {
                 itemMeta.setCustomModelData(Integer.valueOf(bone.getBoneBlueprint().getModelID()));
-            } else {
-                itemMeta.setItemModel(NamespacedKey.fromString(bone.getBoneBlueprint().getModelID()));
             }
 
         leatherHorseArmor.setItemMeta(itemMeta);
