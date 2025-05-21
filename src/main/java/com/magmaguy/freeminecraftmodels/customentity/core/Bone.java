@@ -3,6 +3,7 @@ package com.magmaguy.freeminecraftmodels.customentity.core;
 import com.magmaguy.freeminecraftmodels.MetadataHandler;
 import com.magmaguy.freeminecraftmodels.config.DefaultConfig;
 import com.magmaguy.freeminecraftmodels.dataconverter.BoneBlueprint;
+import com.magmaguy.freeminecraftmodels.entities.MountArmorStand;
 import com.magmaguy.freeminecraftmodels.packets.PacketArmorStand;
 import com.magmaguy.freeminecraftmodels.thirdparty.Floodgate;
 import com.magmaguy.magmacore.util.VersionChecker;
@@ -39,8 +40,10 @@ public class Bone {
     private float animationScale = -1;
     @Getter
     public PacketArmorStand nametag = null;
+    @Getter
+    public MountArmorStand mountArmorStand = null;
     @Setter
-    public String displayName = "";
+    public String displayName = " ";
 
     public Bone(BoneBlueprint boneBlueprint, Bone parent, Skeleton skeleton) {
         this.boneBlueprint = boneBlueprint;
@@ -52,6 +55,10 @@ public class Bone {
 
         if(this.boneBlueprint.isNameTag()) {
             addNametag();
+        }
+
+        if(this.boneBlueprint.isMount()) {
+            addMount();
         }
     }
 
@@ -80,6 +87,11 @@ public class Bone {
                 nametag.setText(displayName);
             }
         }
+        if(mountArmorStand != null) {
+            Location location = this.getSkeleton().getCurrentLocation();
+            location.setY((location.getY() - boneBlueprint.getBlueprintModelPivot().y));
+            mountArmorStand.move(location);
+        }
     }
 
     public void generateDisplay() {
@@ -107,6 +119,9 @@ public class Bone {
             if(nametag != null) {
                 nametag.destroy();
             }
+        }
+        if(mountArmorStand != null) {
+            mountArmorStand.destroy();
         }
     }
 
@@ -173,6 +188,15 @@ public class Bone {
     private void addNametag() {
         if(this.boneBlueprint.isNameTag()) {
             nametag = new PacketArmorStand(displayName, this.getSkeleton().getCurrentLocation());
+        }
+    }
+
+    private void addMount() {
+        if(this.boneBlueprint.isMount()) {
+            Bukkit.getScheduler().runTaskLater(MetadataHandler.PLUGIN, () -> {
+                mountArmorStand = new MountArmorStand(this.getSkeleton());
+            }, 3L);
+
         }
     }
 }

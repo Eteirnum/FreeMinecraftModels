@@ -1,6 +1,7 @@
 package com.magmaguy.freeminecraftmodels;
 
 import com.github.retrooper.packetevents.PacketEvents;
+import com.github.retrooper.packetevents.event.PacketListenerPriority;
 import com.magmaguy.easyminecraftgoals.NMSManager;
 import com.magmaguy.freeminecraftmodels.commands.*;
 import com.magmaguy.freeminecraftmodels.config.DefaultConfig;
@@ -11,6 +12,7 @@ import com.magmaguy.freeminecraftmodels.customentity.*;
 import com.magmaguy.freeminecraftmodels.customentity.core.OBBHitDetection;
 import com.magmaguy.freeminecraftmodels.dataconverter.FileModelConverter;
 import com.magmaguy.freeminecraftmodels.listeners.EntityTeleportEvent;
+import com.magmaguy.freeminecraftmodels.packets.listeners.SteerVehiclePacketListener;
 import com.magmaguy.magmacore.MagmaCore;
 import com.magmaguy.magmacore.command.CommandManager;
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
@@ -68,6 +70,7 @@ public final class FreeMinecraftModels extends JavaPlugin implements Listener {
         PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
         //On Bukkit, calling this here is essential, hence the name "load"
         PacketEvents.getAPI().load();
+        PacketEvents.getAPI().getEventManager().registerListener(new SteerVehiclePacketListener(), PacketListenerPriority.NORMAL);
         MagmaCore.createInstance(this);
     }
 
@@ -83,6 +86,7 @@ public final class FreeMinecraftModels extends JavaPlugin implements Listener {
         PropEntity.onShutdown();
         Bukkit.getServer().getScheduler().cancelTasks(MetadataHandler.PLUGIN);
         HandlerList.unregisterAll(MetadataHandler.PLUGIN);
+        PacketEvents.getAPI().terminate();
     }
 
     @EventHandler(priority = EventPriority.LOWEST)
