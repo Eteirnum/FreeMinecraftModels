@@ -47,6 +47,9 @@ public class Skeleton {
     @Setter
     private ModeledEntity modeledEntity = null;
     private Bone rootBone = null;
+    @Getter
+    @Setter
+    private Bone mountBone = null;
 
     public Skeleton(SkeletonBlueprint skeletonBlueprint, ModeledEntity modeledEntity) {
         this.skeletonBlueprint = skeletonBlueprint;
