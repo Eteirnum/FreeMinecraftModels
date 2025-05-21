@@ -23,6 +23,7 @@ public class PacketArmorStand {
     private Location location;
     private final int entityId;
     private final UUID uuid;
+    private boolean nameVisible = true;
     private final Set<Player> viewers = new HashSet<>(); // Track viewers
 
     public PacketArmorStand(String text, Location location) {
@@ -30,17 +31,6 @@ public class PacketArmorStand {
         this.location = location;
         this.entityId = SpigotReflectionUtil.generateEntityId();
         this.uuid = UUID.randomUUID();
-    }
-
-    public void mount(Player player) {
-        User user = PacketEvents.getAPI().getPlayerManager().getUser(player);
-        int[] passengerList = {user.getEntityId()};
-        WrapperPlayServerSetPassengers setPassengersPacket = new WrapperPlayServerSetPassengers(
-                entityId,
-                passengerList
-        );
-
-        user.sendPacket(setPassengersPacket);
     }
 
     public void displayTo(Player player) {
@@ -89,7 +79,7 @@ public class PacketArmorStand {
         // Custom Name
         metadataList.add(new EntityData<>(2, EntityDataTypes.OPTIONAL_ADV_COMPONENT, Optional.of(Component.text(text))));
         // Name Visible
-        metadataList.add(new EntityData<>(3, EntityDataTypes.BOOLEAN, true));
+        metadataList.add(new EntityData<>(3, EntityDataTypes.BOOLEAN, nameVisible));
         // Is Small
         metadataList.add(new EntityData<>(15, EntityDataTypes.BYTE, (byte) 0x01));
         // Is Invisible
